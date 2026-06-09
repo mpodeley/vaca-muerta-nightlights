@@ -17,9 +17,12 @@ ANELO = (-38.35, -68.79)  # (lat, lon)
 # --- Ventana temporal del monitoreo ---
 START, END = "2019-01", "2026-06"   # YYYY-MM
 
-# --- Parámetros de matching (label.py) ---
+# --- Parámetros de matching / clasificación (label.py) ---
 MATCH_RADIUS_M = 1200.0   # radio detección↔pozo (~footprint VIIRS 500-750m + margen)
-PERSIST_MONTHS = 4        # ≥ esto = "persistente" (facilidad/producción); menos = transitorio (operación)
+FLARE_NW = 200.0          # brillo ≥ esto cerca de pozo productor = FLARING (proxy; ~p90); menos = PRODUCCION
+PERSIST_TOWN = 60         # detección en ≥ esto meses (de 88) + sin pozo cerca = PUEBLO/ciudad (se excluye)
+TOWN_RADIUS_M = 2500.0    # si no hay pozo en este radio y es persistente → pueblo, no actividad O&G
+GRID_DEG = 0.0045         # ~500 m: celda para medir persistencia de una detección en el tiempo
 
 # --- Fuentes ---
 CONCESIONES = DATA / "concesiones_neuquina.geojson"

@@ -10,6 +10,9 @@ data/_data/
 *.png
 detections.csv
 activity.csv
+# ...pero SÍ versionar los assets del sitio (dashboard + chart)
+!docs/assets/*.html
+!docs/assets/*.png
 # Entornos / temporales
 .venv/
 __pycache__/
@@ -25,3 +28,4 @@ eog_token.txt
 # logs
 *.log
 data/*.log
+site/

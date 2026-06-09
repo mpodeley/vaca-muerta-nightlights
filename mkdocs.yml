@@ -1,0 +1,32 @@
+site_name: Actividad nocturna en Vaca Muerta
+site_description: >-
+  Detección y etiquetado de actividad de oil & gas (perforación / fractura / terminación /
+  flaring / producción) desde la huella lumínica nocturna satelital + datos públicos de pozos.
+site_url: https://mpodeley.github.io/vaca-muerta-nightlights/
+repo_url: https://github.com/mpodeley/vaca-muerta-nightlights
+repo_name: mpodeley/vaca-muerta-nightlights
+
+theme:
+  name: material
+  language: es
+  palette:
+    - scheme: slate
+      primary: black
+      accent: amber
+      toggle: {icon: material/weather-sunny, name: Modo claro}
+    - scheme: default
+      primary: blue grey
+      accent: amber
+      toggle: {icon: material/weather-night, name: Modo oscuro}
+  features: [navigation.top, content.code.copy]
+
+nav:
+  - Inicio: index.md
+  - Método y validación: metodo.md
+
+markdown_extensions: [admonition, pymdownx.details, tables, attr_list, md_in_html]
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mpodeley/vaca-muerta-nightlights

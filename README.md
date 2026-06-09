@@ -15,14 +15,23 @@ ground-truth, una detección nocturna en el lugar y mes correctos se etiqueta co
 ## Pipeline
 
 ```
-config.py            AOI (lon −70.6…−68.2, lat −39.2…−37.3), ventana, radios de match
-data/fetch_wells.py  Cap IV pozos + fractura → wells.csv / frac.csv (coords + fechas perf/frac/term)   [CORRE]
-data/fetch_eog.py    VIIRS VNL mensual + VNF (eogdata.mines.edu, token EOG)                              [necesita credencial]
-detect.py            VNL/VNF → detections.csv (detecciones nocturnas mensuales)                          [CORRE; 0 sin EOG]
-label.py             ciclo de vida → activity.csv (actividad+operador+concesión, + sat_conf si hay EOG)  [CORRE]
-validate.py          recall/precisión de la luz nocturna vs eventos conocidos                            [necesita EOG]
-viz.py               demo_actividad.html (mapa + slider + ranking por operador)                          [CORRE]
+config.py                 AOI (lon −70.6…−68.2, lat −39.2…−37.3), ventana, radios de match
+data/fetch_wells.py       Cap IV pozos + fractura → wells.csv / frac.csv (coords + fechas)          [CORRE]
+data/fetch_blackmarble.py NASA Black Marble VNP46A3 (VIIRS nightlights mensual ~500m) → vnl/<ym>.tif [CORRE, Earthdata .netrc]
+detect.py                 vnl/*.tif → detections.csv (bright spots mensuales)                      [CORRE]
+label.py                  ciclo de vida → activity.csv (actividad+operador, + sat_conf)            [CORRE]
+validate.py               recall/precisión de la luz nocturna vs eventos conocidos                [CORRE con detecciones]
+viz.py                    demo_actividad.html (mapa + slider + ranking por operador)              [CORRE]
+data/fetch_eog.py         alternativa VIIRS VNF/flares (eogdata.mines.edu) — auth migró a flujo de código,
+                          no scriptable sin secret de cliente; superado por Black Marble.          [DEPRECADO]
 ```
+
+**Fuente de luz nocturna:** se usa **NASA Black Marble VNP46A3** (VIIRS DNB mensual, gap-filled, ~500 m)
+vía Earthdata (`~/.netrc`, las mismas credenciales de ASF/HyP3). Captura luces de equipos **y** flares
+como radiancia (no los separa: sin VNF no hay discriminación por temperatura; un punto muy brillante y
+persistente es muy probablemente flaring). EOG VNF quedó como alternativa deprecada (su auth migró a un
+flujo de código no automatizable). Sanity: en un mes de prueba, ~90 % de las detecciones tienen un pozo
+a <1.5 km.
 
 **Estado:** el producto de monitoreo **ya funciona con dato público** (20.178 eventos pozo-mes
 2019–2026; top operadores YPF, Shell, Vista, Pluspetrol, Tecpetrol, PAE). La **capa de confirmación
@@ -32,14 +41,31 @@ y `label`/`validate` la incorporan automáticamente.
 ## Correr
 
 ```bash
-M="~/miniforge3/bin/mamba run -n insar python"   # env con rasterio/shapely/folium/scipy
+M="~/miniforge3/bin/mamba run -n insar python"   # env con rasterio/shapely/folium/scipy/earthaccess
 $M data/fetch_wells.py        # wells.csv + frac.csv (lee CSV del repo madre; ver config.SRC_DATA)
-$M label.py                   # activity.csv
+$M data/fetch_blackmarble.py  # vnl/<ym>.tif (VIIRS nightlights mensual; usa ~/.netrc Earthdata)
+$M detect.py                  # detections.csv (bright spots)
+$M label.py                   # activity.csv (con confirmación satelital)
+$M validate.py                # recall/precisión vs eventos conocidos
 $M viz.py                     # demo_actividad.html  ← abrir en navegador
-# capa satelital (con cuenta gratuita eogdata.mines.edu):
-EOG_USER=... EOG_PASS=... $M data/fetch_eog.py
-$M detect.py && $M label.py && $M validate.py && $M viz.py
 ```
+
+## Resultados (validación luz nocturna ↔ eventos de pozo, 2019–2026)
+
+Cruzando 21.950 detecciones nocturnas (Black Marble) con 20.178 eventos de pozo (radio 1200 m, mismo mes):
+
+| Métrica | Valor |
+|---|---|
+| Eventos confirmados por satélite | **71 %** (14.286/20.178) |
+| Recall FRACTURA | **79 %** |
+| Recall TERMINACIÓN | **70 %** |
+| Recall PERFORACIÓN | **68 %** |
+| Precisión (detección sobre evento perf/frac/term) | 16 % |
+
+La **luz nocturna detecta ~7 de cada 10 operaciones conocidas** → buena sensibilidad. La precisión baja
+es esperable: la mayoría de las luces son **producción/flaring de pozos viejos, facilidades y pueblos**
+(Añelo, Neuquén, Cutral-Có), no eventos transitorios de perf/frac. Top operadores por actividad: YPF,
+Shell, Vista, Pluspetrol, Tecpetrol, PAE.
 
 ## Caveats
 

@@ -1,0 +1,23 @@
+# Datos crudos descargados (regenerables con los scripts de data/)
+data/_data/
+*.tif
+*.tiff
+*.h5
+*.nc
+*.zip
+# Salidas pesadas / regenerables
+*.html
+*.png
+detections.csv
+activity.csv
+# Entornos / temporales
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+# Credenciales
+.env
+*.secret
+.netrc
+eog_token.txt

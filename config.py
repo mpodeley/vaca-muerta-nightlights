@@ -26,6 +26,7 @@ GRID_DEG = 0.0045         # ~500 m: celda para medir persistencia de una detecci
 
 # --- Fuentes ---
 CONCESIONES = DATA / "concesiones_neuquina.geojson"
+SITE_ASSETS = ROOT / "docs" / "assets"   # destino del dashboard + overlays para el sitio MkDocs
 # Catálogo de pozos (Cap IV) y fractura (Adjunto IV): se reusan los CSV ya descargados por el
 # repo madre (escala_pozo/_data). fetch_wells.py recorta al AOI y persiste el subset acá.
 # (Si esos CSV no estuvieran, bajarlos del portal datos.energia.gob.ar — datasets Cap IV pozos y

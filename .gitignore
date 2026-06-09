@@ -13,6 +13,7 @@ activity.csv
 # ...pero SÍ versionar los assets del sitio (dashboard + chart)
 !docs/assets/*.html
 !docs/assets/*.png
+!docs/assets/vnl/*.png
 # Entornos / temporales
 .venv/
 __pycache__/

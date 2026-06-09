@@ -21,3 +21,7 @@ __pycache__/
 *.secret
 .netrc
 eog_token.txt
+
+# logs
+*.log
+data/*.log

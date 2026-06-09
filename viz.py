@@ -150,8 +150,9 @@ function show(i){{
  const fr=FR[i]; ymL.textContent=fr.ym; ym2.textContent=fr.ym;
  // raster crudo
  if(vis.RAW && VNL_B && vnlSet.has(fr.ym)){{
-   const url='assets/vnl/'+fr.ym+'.png';
-   if(!raster){{raster=L.imageOverlay(url,VNL_B,{{opacity:0.9}}).addTo(map);}} else {{raster.setUrl(url); if(!map.hasLayer(raster))raster.addTo(map);}}
+   const url='vnl/'+fr.ym+'.png';   // relativo al propio HTML (que ya vive en assets/)
+   if(!raster){{raster=L.imageOverlay(url,VNL_B,{{opacity:0.92}}).addTo(map);}} else {{raster.setUrl(url); if(!map.hasLayer(raster))raster.addTo(map);}}
+   raster.bringToBack();
  }} else if(raster && map.hasLayer(raster)) {{ map.removeLayer(raster); }}
  // puntos
  g.clearLayers();

@@ -367,6 +367,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#deteccion-mejorada-vnf-y-nowcasting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detección mejorada (VNF) y nowcasting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#caveats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -445,6 +456,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#deteccion-mejorada-vnf-y-nowcasting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detección mejorada (VNF) y nowcasting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#caveats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -512,6 +534,42 @@
 <li><code>validate.py</code> — <em>recall</em> y <em>precisión</em> de la luz nocturna contra los eventos conocidos.</li>
 <li><code>viz.py</code> — el dashboard (mapa + slider + ranking por operador).</li>
 </ol>
+<h2 id="deteccion-mejorada-vnf-y-nowcasting">Detección mejorada (VNF) y nowcasting</h2>
+<p><strong>VIIRS Nightfire (VNF).</strong> Además del DNB (luces), sumamos el survey anual de flares de EOG (combustión
+por temperatura SWIR + volumen BCM). La capa <strong>Flaring</strong> pasa de un proxy por brillo a <strong>combustión
+real</strong> atribuida por operador. Subió el recall de los eventos (FRAC 79→82 %, PERF 68→71 %, TERM 70→74 %).</p>
+<p><strong>Nowcasting — adelantar el Cap IV.</strong> El dato oficial llega con <strong>lag mediano de ~13,5 meses</strong>
+(<code>analysis/lag.py</code>); el satélite lo ve al instante. Entrenamos un <em>gradient boosting</em>
+(<code>features.py</code> → tabla pozo×mes con DNB + <strong>change-detection</strong> vs línea de base, VNF, persistencia,
+vecindad, operador; <code>nowcast.py</code>) con <strong>holdout temporal</strong> (entrena ≤2023, testea 2024-2026):</p>
+<table>
+<thead>
+<tr>
+<th>Objetivo</th>
+<th>ROC-AUC (holdout)</th>
+<th>PR-AUC</th>
+<th>tasa base</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Perforación</strong></td>
+<td><strong>0.85</strong></td>
+<td>0.33</td>
+<td>0.033</td>
+</tr>
+<tr>
+<td><strong>Fractura</strong></td>
+<td><strong>0.91</strong></td>
+<td>0.22</td>
+<td>0.018</td>
+</tr>
+</tbody>
+</table>
+<p>ROC-AUC 0.85–0.91 fuera de muestra = <strong>skill predictivo real</strong>; PR-AUC ~10–12× la tasa base (lift fuerte
+pese al desbalance), mejorando la precisión del baseline de regla. La capa <strong>Nowcast</strong> del dashboard
+marca, para el último mes, los pozos con probabilidad alta de perf/fractura <strong>antes</strong> de que el Cap IV
+los publique.</p>
 <h2 id="caveats">Caveats</h2>
 <ul>
 <li><strong>Resolución VIIRS ~500 m</strong> → actividad a nivel <strong>pad-cluster</strong>, no por-pad; en el core denso de Añelo
@@ -525,8 +583,10 @@
 </ul>
 <h2 id="reproducir">Reproducir</h2>
 <pre><code class="language-bash">M=&quot;mamba run -n insar python&quot;
-$M data/fetch_wells.py &amp;&amp; $M data/fetch_blackmarble.py
-$M detect.py &amp;&amp; $M label.py &amp;&amp; $M validate.py &amp;&amp; $M viz.py
+$M data/fetch_wells.py &amp;&amp; $M data/fetch_blackmarble.py &amp;&amp; $M data/fetch_vnf.py
+$M detect.py &amp;&amp; $M label.py &amp;&amp; $M validate.py
+$M analysis/lag.py &amp;&amp; $M features.py &amp;&amp; $M nowcast.py   # nowcasting
+$M viz.py
 </code></pre>
 <p>Código: <a href="https://github.com/mpodeley/vaca-muerta-nightlights">github.com/mpodeley/vaca-muerta-nightlights</a>.</p>
 

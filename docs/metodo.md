@@ -83,10 +83,32 @@ propio conteo del Cap IV (los labels son el registro oficial).
   de fractura (Spearman HP↔brillo ρ=+0.12, p=3e-8) — a 500 m no alcanza para dimensionar el set con
   precisión, pero la señal existe.
 
+## Sentinel-2 a 10 m — el despeje de pad
+
+VIIRS resuelve a ~500 m (nivel pad-cluster). Para confirmar por-pad usamos **Sentinel-2 (10 m)**:
+un *change-detection* de brillo entre un composite de verano **PRE** (2019-21) y **POST** (2024-25),
+mediana enmascarando nubes (SCL), harmonizando el offset radiométrico del baseline 04.00. Construir un
+pad **despeja la vegetación → el suelo sube de brillo**, una firma neta que VIIRS no puede aislar.
+
+![Cambio de brillo Sentinel-2 (10 m) PRE→POST: puntos = pads nuevos, líneas = caminos de acceso](assets/s2_change.png){ loading=lazy }
+
+La huella O&G aparece nítida a 10 m: **puntos** = pads nuevos, **líneas** = caminos de acceso construidos
+entre épocas. Cuantificado sobre 2.457 pozos del core (`data/fetch_s2.py`), el ΔBrillo medio confirma la
+señal:
+
+| Pozos | ΔBrillo medio |
+|---|---|
+| Drillados **2022-24** (pad nuevo entre PRE y POST) | **+765** (n=633) |
+| Drillados pre-2019 (el pad ya existía en PRE) | +104 (n=1283) |
+| Fondo del raster (sin pad) | +201 |
+
+Los pads despejados entre épocas brillan **~7×** más que los pre-existentes → S2 a 10 m detecta el despeje
+por-pad. Queda como **tier de confirmación espacial** (futuro: un detector por-pad sobre estas escenas).
+
 ## Caveats
 
 - **Resolución VIIRS ~500 m** → actividad a nivel **pad-cluster**, no por-pad; en el core denso de Añelo
-  se funden pads vecinos.
+  se funden pads vecinos. *(Sentinel-2 a 10 m lo confirma por-pad — ver arriba.)*
 - **Sin separación física flaring/luces** (no usamos VNF por temperatura): el split Flaring/Producción es
   un **proxy por brillo**.
 - **Muestreo mensual**: fracturas cortas (días) pueden perderse; la perforación (semanas) es más
@@ -102,6 +124,7 @@ $M data/fetch_wells.py && $M data/fetch_blackmarble.py && $M data/fetch_vnf.py
 $M detect.py && $M label.py && $M validate.py
 $M analysis/lag.py && $M features.py && $M nowcast.py   # nowcasting (scorea toda la cola laggeada)
 $M analysis/timeline.py   # chart oficial + nowcast supliendo el lag
+$M data/fetch_s2.py       # Sentinel-2 10m: change-detection PRE→POST del despeje de pad
 $M viz.py
 ```
 

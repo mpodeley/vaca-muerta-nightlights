@@ -34,6 +34,14 @@ pozo** (radio 1200 m, mismo mes):
 mayoría de las luces son **producción/flaring de pozos en marcha, facilidades y pueblos**, no eventos
 nuevos. Operadores más activos: **YPF, Shell, Vista, Pluspetrol, Tecpetrol, PAE**.
 
+## Nowcast: adelantar el dato oficial
+
+El Cap IV se publica con **~13,5 meses de atraso** (mediana), pero el satélite ve la actividad al
+instante. Un modelo (*gradient boosting* sobre la señal nocturna, **validado fuera de muestra**) predice
+la perforación/fractura del mes con **ROC-AUC 0.85 (perf) y 0.91 (fractura)**. La capa **Nowcast**
+(magenta, punteada) marca los pozos con alta probabilidad de actividad **antes** de que aparezca en el
+registro oficial. Detalle en [Método y validación](metodo.md).
+
 !!! note "Cómo leer el mapa"
     - **Perforación / Fractura / Terminación**: eventos *transitorios* (la actividad "nueva").
     - **Flaring / Producción**: estado estable de pozos ya terminados (luz nocturna cerca del pozo;

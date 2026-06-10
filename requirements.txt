@@ -1,0 +1,14 @@
+# Monitor de actividad nocturna — dependencias (env conda 'insar')
+requests
+pandas
+numpy
+matplotlib
+scipy
+rasterio
+shapely
+pyproj
+folium
+h5py
+earthaccess        # NASA Black Marble + VNF survey (Earthdata)
+openpyxl           # leer survey VNF (xlsx EOG)
+scikit-learn       # nowcaster (HistGradientBoosting)

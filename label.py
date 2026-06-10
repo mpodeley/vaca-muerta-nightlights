@@ -69,6 +69,7 @@ def main() -> None:
     for d in dets:
         d["lon"] = float(d["lon"]); d["lat"] = float(d["lat"])
         d["b"] = float(d["vnl_brillo"]) if d["vnl_brillo"] else 0.0
+        d["vnf"] = 1 if str(d.get("vnf_flag", "")).strip() in ("1", "1.0", "True", "true") else 0
     det_by_month = defaultdict(list)
     for d in dets:
         det_by_month[d["ym"]].append(d)
@@ -134,7 +135,8 @@ def main() -> None:
             # ¿el pozo ya está terminado/perforado a esta fecha? → productor
             done = w["term_fin"] or w["perf_fin"]
             if done and ym_le(done[:7], ym):
-                act = "FLARING" if d["b"] >= C.FLARE_NW else "PRODUCCION"
+                # FLARING = combustión real (VNF); si no hay VNF, brillo alto como respaldo
+                act = "FLARING" if (d["vnf"] or d["b"] >= C.FLARE_NW) else "PRODUCCION"
                 rows.append({"ym": ym, "idpozo": w["idpozo"], "sigla": w["sigla"],
                              "empresa": w["empresa"], "area": w["area"],
                              "lon": lon, "lat": lat, "actividad": act, "fuente": "satelite",
@@ -148,6 +150,18 @@ def main() -> None:
                              "sat_conf": 1, "brillo": round(d["b"], 1)})
             # else: luz aislada no persistente sin pozo → ruido, se descarta
 
+    # dedup de filas satelitales: una por pozo/sitio-mes, prioridad FLARING>PRODUCCION>PUEBLO
+    PR = {"FLARING": 3, "PRODUCCION": 2, "PUEBLO": 1}
+    best = {}; final = []
+    for r in rows:
+        if r["fuente"] == "pozo":
+            final.append(r); continue
+        key = (r["idpozo"] or f"{r['lon']:.4f},{r['lat']:.4f}", r["ym"])
+        pr = PR.get(r["actividad"], 0)
+        if key not in best or pr > best[key][0]:
+            best[key] = (pr, r)
+    final.extend(v[1] for v in best.values())
+    rows = final
     rows.sort(key=lambda r: (r["ym"], r["actividad"]))
     cols = ["ym", "idpozo", "sigla", "empresa", "area", "lon", "lat", "actividad", "fuente",
             "sat_conf", "brillo"]

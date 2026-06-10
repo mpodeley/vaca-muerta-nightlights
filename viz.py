@@ -20,11 +20,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config as C
 
 COLORS = {"PERF": "#ff7f0e", "FRAC": "#d62728", "TERM": "#1f77b4",
-          "FLAR": "#ffd400", "PROD": "#2ca02c", "PUEB": "#9e9e9e"}
+          "FLAR": "#ffd400", "PROD": "#2ca02c", "PUEB": "#9e9e9e", "NOWC": "#e000e0"}
 NAME = {"PERF": "Perforación", "FRAC": "Fractura", "TERM": "Terminación",
-        "FLAR": "Flaring", "PROD": "Producción", "PUEB": "Pueblo/ciudad"}
+        "FLAR": "Flaring", "PROD": "Producción", "PUEB": "Pueblo/ciudad",
+        "NOWC": "Nowcast (predicción)"}
 TRANSIENT = ["PERF", "FRAC", "TERM"]
-ORDER = ["PERF", "FRAC", "TERM", "FLAR", "PROD", "PUEB"]
+ORDER = ["PERF", "FRAC", "TERM", "FLAR", "PROD", "PUEB", "NOWC"]
 VNL_DIR = C.RAW / "vnl"
 ASSETS = C.SITE_ASSETS
 OUT = ASSETS / "demo_actividad.html"
@@ -79,6 +80,14 @@ def main() -> None:
             "lo": round(float(r["lon"]), 5), "la": round(float(r["lat"]), 5),
             "a": r["actividad"][:4], "e": r["empresa"] or "—", "s": r["sigla"] or "",
             "c": int(r["sat_conf"] or 0)})
+    # capa nowcast (predicción del último mes con dato oficial incompleto)
+    ncp = C.ROOT / "nowcast.csv"
+    if ncp.exists():
+        for r in csv.DictReader(open(ncp)):
+            by_month[r["ym"]].append({
+                "lo": round(float(r["lon"]), 5), "la": round(float(r["lat"]), 5),
+                "a": "NOWC", "e": (r["empresa"] or "—") + " · " + r["tipo"] + " p=" + r["prob"],
+                "s": "NOWCAST " + r["tipo"], "c": 0})
     months = sorted(by_month)
     frames = [{"ym": m, "pts": by_month[m]} for m in months]
     vnl_set = set(vnl_months)
@@ -142,10 +151,10 @@ if(CONC) L.geoJSON(CONC,{{style:{{fill:false,color:'#fff',weight:0.6,opacity:0.4
  onEachFeature:(f,l)=>{{const p=f.properties||{{}}; l.bindTooltip((p.nombre||'')+' — '+(p.operador||''));}}}}).addTo(map);
 const g=L.layerGroup().addTo(map);
 let raster=null;  // overlay de luz cruda
-const vis={{PERF:true,FRAC:true,TERM:true,FLAR:true,PROD:true,PUEB:false,RAW:false}};
+const vis={{PERF:true,FRAC:true,TERM:true,FLAR:true,PROD:true,PUEB:false,NOWC:true,RAW:false}};
 const sl=document.getElementById('sl'), ymL=document.getElementById('ym'), ym2=document.getElementById('ym2'),
       cnt=document.getElementById('cnt'), rank=document.getElementById('rank');
-function radius(a){{ return TRANS.includes(a)?5 : (a==='FLAR'?5 : (a==='PROD'?2.5:2)); }}
+function radius(a){{ return a==='NOWC'?6 : (TRANS.includes(a)?5 : (a==='FLAR'?5 : (a==='PROD'?2.5:2))); }}
 function show(i){{
  const fr=FR[i]; ymL.textContent=fr.ym; ym2.textContent=fr.ym;
  // raster crudo
@@ -157,13 +166,13 @@ function show(i){{
  // puntos
  g.clearLayers();
  const byop={{}}, byact={{}};
- const order=p=>TRANS.includes(p.a)?2:(p.a==='FLAR'?1:0);
+ const order=p=>p.a==='NOWC'?3:(TRANS.includes(p.a)?2:(p.a==='FLAR'?1:0));
  fr.pts.slice().sort((x,y)=>order(x)-order(y)).forEach(p=>{{
   byact[p.a]=(byact[p.a]||0)+1;
   if(!vis[p.a]) return;
-  const col=COL[p.a]||'#888', tr=TRANS.includes(p.a);
-  L.circleMarker([p.la,p.lo],{{radius:radius(p.a),color:p.c?'#fff':col,weight:p.c?1.3:0.6,
-    fillColor:col,fillOpacity:tr?0.95:0.6}})
+  const col=COL[p.a]||'#888', tr=TRANS.includes(p.a), nw=p.a==='NOWC';
+  L.circleMarker([p.la,p.lo],{{radius:radius(p.a),color:nw?'#e000e0':(p.c?'#fff':col),weight:nw?2:(p.c?1.3:0.6),
+    fillColor:col,fillOpacity:nw?0.25:(tr?0.95:0.6),dashArray:nw?'3 2':null}})
    .bindPopup((p.s||'(sin pozo)')+'<br>'+p.e+'<br>'+(NM[p.a]||p.a)+(p.c?' · luz noct.':'')).addTo(g);
   if(tr) byop[p.e]=(byop[p.e]||0)+1;
  }});

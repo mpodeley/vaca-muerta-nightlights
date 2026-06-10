@@ -25,7 +25,8 @@ def load(path):
 
 
 def main() -> None:
-    acts = load(C.ROOT / "activity.csv")
+    # validar SOLO contra eventos reales de pozo (perf/frac/term), no contra filas derivadas de detección
+    acts = [a for a in load(C.ROOT / "activity.csv") if a.get("fuente") == "pozo"]
     dets = load(C.RAW / "detections.csv")
     if not acts:
         sys.exit("Falta activity.csv — corré label.py.")

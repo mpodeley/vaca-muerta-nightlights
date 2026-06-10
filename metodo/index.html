@@ -389,6 +389,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#terminacion-volumen-calibrado-y-equipos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terminación, volumen calibrado y equipos
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -489,6 +500,17 @@
     <span class="md-ellipsis">
       
         Fallback por frescura (cascade de tiers)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terminacion-volumen-calibrado-y-equipos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terminación, volumen calibrado y equipos
       
     </span>
   </a>
@@ -636,6 +658,21 @@ anual es <strong>mínimo</strong>:</p>
 <p>Es decir: la señal la llevan el <strong>DNB + change-detection + historia</strong>, no el VNF — así que el nowcasting
 de los meses frescos (donde el Cap IV está casi vacío y el VNF todavía no salió) <strong>se mantiene fuerte</strong>.
 En el mapa, el anillo de predicción se dibuja más tenue/punteado cuando es tier T2 (sin VNF).</p>
+<h3 id="terminacion-volumen-calibrado-y-equipos">Terminación, volumen calibrado y equipos</h3>
+<p><strong>Terminación</strong> se suma como tercer objetivo del nowcaster (ROC-AUC <strong>0.92</strong> en holdout, junto a
+perforación 0.87 y fractura 0.92).</p>
+<p><strong>Volumen consistente con el histórico.</strong> Las probabilidades se <strong>calibran (isotónica)</strong> para que su
+suma ≈ el conteo real, y el nowcast marca <strong>top-K = volumen esperado</strong> → la predicción no sobre/sub-cuenta
+(Σpred/Σreal en holdout: perf <strong>1.09</strong>, frac 1.23, term 1.44; antes 11-19×). El ancla de volumen es el
+propio conteo del Cap IV (los labels son el registro oficial).</p>
+<p><strong>Equipos (sin ID de rig público → cantidad/movimiento/tamaño, no identidad).</strong>
+- <em>Tracking</em>: nº de equipos de perforación activos = pads distintos con perforación por mes. Da una
+  <strong>mediana ~47 rigs/mes</strong> en Vaca Muerta (orden del rango conocido ~30-45 → sanity). El desplome de los
+  últimos meses es el <strong>lag del Cap IV</strong>, no caída real — lo que el nowcast corrige.</p>
+<p><img alt="Equipos de perforación activos inferidos" loading="lazy" src="../assets/equipment_rigs.png" />
+- <em>Tamaño por intensidad</em>: la firma nocturna correlaciona <strong>positivo pero débil</strong> con la potencia del set
+  de fractura (Spearman HP↔brillo ρ=+0.12, p=3e-8) — a 500 m no alcanza para dimensionar el set con
+  precisión, pero la señal existe.</p>
 <h2 id="caveats">Caveats</h2>
 <ul>
 <li><strong>Resolución VIIRS ~500 m</strong> → actividad a nivel <strong>pad-cluster</strong>, no por-pad; en el core denso de Añelo

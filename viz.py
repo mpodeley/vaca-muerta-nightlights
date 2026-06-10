@@ -74,10 +74,10 @@ def main() -> None:
     ncp = C.ROOT / "nowcast.csv"
     if ncp.exists():
         for r in csv.DictReader(open(ncp)):
-            a = r["tipo"].upper()[:4]
+            a = r["tipo"].upper()[:4]; tier = r.get("tier", "")
             by_month[r["ym"]].append({"lo": round(float(r["lon"]), 5), "la": round(float(r["lat"]), 5),
-                                      "a": a, "nw": 1, "op": r["empresa"] or "—",
-                                      "info": "PREDICCIÓN · " + (r["empresa"] or "—") + " · p=" + r["prob"],
+                                      "a": a, "nw": 1, "tier": tier, "op": r["empresa"] or "—",
+                                      "info": "PREDICCIÓN (" + (tier or "?") + ") · " + (r["empresa"] or "—") + " · p=" + r["prob"],
                                       "c": 0})
     months = sorted(by_month)
     frames = [{"ym": m, "pts": by_month[m]} for m in months]
@@ -166,7 +166,9 @@ function show(i){{
   if(!vis[p.a]) return; if(p.nw && !vis.PRED) return;
   const col=COL[p.a]||'#888', tr=TRANS.includes(p.a);
   if(p.nw){{
-    L.circleMarker([p.la,p.lo],{{radius:6,color:col,weight:2.5,fill:false,opacity:0.95,dashArray:'3 3'}})
+    const t2=(p.tier==='T2');  // tier reciente sin VNF → anillo más punteado / tenue
+    L.circleMarker([p.la,p.lo],{{radius:6,color:col,weight:t2?2:2.6,fill:false,
+      opacity:t2?0.8:0.97,dashArray:t2?'2 4':'4 3'}})
      .bindPopup(p.info+'<br>'+(NM[p.a]||p.a)).addTo(g);
     if(tr){{ ops[p.op]=ops[p.op]||{{o:0,p:0}}; ops[p.op].p++; }}
   }} else {{

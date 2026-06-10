@@ -47,6 +47,22 @@ pese al desbalance), mejorando la precisión del baseline de regla. La capa **No
 marca, para el último mes, los pozos con probabilidad alta de perf/fractura **antes** de que el Cap IV
 los publique.
 
+### Fallback por frescura (cascade de tiers)
+
+El nowcast más fresco (2025-26) es el más valioso pero el que **menos features** tiene: el survey **VNF
+es anual y no existe aún para esos años**. Para no degradarse en silencio, hay dos modelos y cada mes usa
+el más alto disponible: **T1** (con VNF, ≈≤2024) y **T2** (sin VNF, 2025-26). El costo de perder el dato
+anual es **mínimo**:
+
+| Objetivo | T1 (con VNF) | T2 (sin VNF) | costo frescura |
+|---|---|---|---|
+| Perforación | ROC-AUC 0.853 | 0.849 | −0.004 |
+| Fractura | ROC-AUC 0.911 | 0.906 | −0.005 |
+
+Es decir: la señal la llevan el **DNB + change-detection + historia**, no el VNF — así que el nowcasting
+de los meses frescos (donde el Cap IV está casi vacío y el VNF todavía no salió) **se mantiene fuerte**.
+En el mapa, el anillo de predicción se dibuja más tenue/punteado cuando es tier T2 (sin VNF).
+
 ## Caveats
 
 - **Resolución VIIRS ~500 m** → actividad a nivel **pad-cluster**, no por-pad; en el core denso de Añelo

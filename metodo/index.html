@@ -375,6 +375,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Detección mejorada (VNF) y nowcasting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fallback-por-frescura-cascade-de-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallback por frescura (cascade de tiers)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -463,6 +480,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Detección mejorada (VNF) y nowcasting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fallback-por-frescura-cascade-de-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallback por frescura (cascade de tiers)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -570,6 +604,38 @@ vecindad, operador; <code>nowcast.py</code>) con <strong>holdout temporal</stron
 pese al desbalance), mejorando la precisión del baseline de regla. La capa <strong>Nowcast</strong> del dashboard
 marca, para el último mes, los pozos con probabilidad alta de perf/fractura <strong>antes</strong> de que el Cap IV
 los publique.</p>
+<h3 id="fallback-por-frescura-cascade-de-tiers">Fallback por frescura (cascade de tiers)</h3>
+<p>El nowcast más fresco (2025-26) es el más valioso pero el que <strong>menos features</strong> tiene: el survey <strong>VNF
+es anual y no existe aún para esos años</strong>. Para no degradarse en silencio, hay dos modelos y cada mes usa
+el más alto disponible: <strong>T1</strong> (con VNF, ≈≤2024) y <strong>T2</strong> (sin VNF, 2025-26). El costo de perder el dato
+anual es <strong>mínimo</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Objetivo</th>
+<th>T1 (con VNF)</th>
+<th>T2 (sin VNF)</th>
+<th>costo frescura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Perforación</td>
+<td>ROC-AUC 0.853</td>
+<td>0.849</td>
+<td>−0.004</td>
+</tr>
+<tr>
+<td>Fractura</td>
+<td>ROC-AUC 0.911</td>
+<td>0.906</td>
+<td>−0.005</td>
+</tr>
+</tbody>
+</table>
+<p>Es decir: la señal la llevan el <strong>DNB + change-detection + historia</strong>, no el VNF — así que el nowcasting
+de los meses frescos (donde el Cap IV está casi vacío y el VNF todavía no salió) <strong>se mantiene fuerte</strong>.
+En el mapa, el anillo de predicción se dibuja más tenue/punteado cuando es tier T2 (sin VNF).</p>
 <h2 id="caveats">Caveats</h2>
 <ul>
 <li><strong>Resolución VIIRS ~500 m</strong> → actividad a nivel <strong>pad-cluster</strong>, no por-pad; en el core denso de Añelo

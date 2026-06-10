@@ -406,6 +406,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sentinel-2-a-10-m-el-despeje-de-pad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sentinel-2 a 10 m — el despeje de pad
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#caveats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -519,6 +530,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sentinel-2-a-10-m-el-despeje-de-pad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sentinel-2 a 10 m — el despeje de pad
+      
+    </span>
+  </a>
   
 </li>
       
@@ -673,10 +695,43 @@ propio conteo del Cap IV (los labels son el registro oficial).</p>
 - <em>Tamaño por intensidad</em>: la firma nocturna correlaciona <strong>positivo pero débil</strong> con la potencia del set
   de fractura (Spearman HP↔brillo ρ=+0.12, p=3e-8) — a 500 m no alcanza para dimensionar el set con
   precisión, pero la señal existe.</p>
+<h2 id="sentinel-2-a-10-m-el-despeje-de-pad">Sentinel-2 a 10 m — el despeje de pad</h2>
+<p>VIIRS resuelve a ~500 m (nivel pad-cluster). Para confirmar por-pad usamos <strong>Sentinel-2 (10 m)</strong>:
+un <em>change-detection</em> de brillo entre un composite de verano <strong>PRE</strong> (2019-21) y <strong>POST</strong> (2024-25),
+mediana enmascarando nubes (SCL), harmonizando el offset radiométrico del baseline 04.00. Construir un
+pad <strong>despeja la vegetación → el suelo sube de brillo</strong>, una firma neta que VIIRS no puede aislar.</p>
+<p><img alt="Cambio de brillo Sentinel-2 (10 m) PRE→POST: puntos = pads nuevos, líneas = caminos de acceso" loading="lazy" src="../assets/s2_change.png" /></p>
+<p>La huella O&amp;G aparece nítida a 10 m: <strong>puntos</strong> = pads nuevos, <strong>líneas</strong> = caminos de acceso construidos
+entre épocas. Cuantificado sobre 2.457 pozos del core (<code>data/fetch_s2.py</code>), el ΔBrillo medio confirma la
+señal:</p>
+<table>
+<thead>
+<tr>
+<th>Pozos</th>
+<th>ΔBrillo medio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Drillados <strong>2022-24</strong> (pad nuevo entre PRE y POST)</td>
+<td><strong>+765</strong> (n=633)</td>
+</tr>
+<tr>
+<td>Drillados pre-2019 (el pad ya existía en PRE)</td>
+<td>+104 (n=1283)</td>
+</tr>
+<tr>
+<td>Fondo del raster (sin pad)</td>
+<td>+201</td>
+</tr>
+</tbody>
+</table>
+<p>Los pads despejados entre épocas brillan <strong>~7×</strong> más que los pre-existentes → S2 a 10 m detecta el despeje
+por-pad. Queda como <strong>tier de confirmación espacial</strong> (futuro: un detector por-pad sobre estas escenas).</p>
 <h2 id="caveats">Caveats</h2>
 <ul>
 <li><strong>Resolución VIIRS ~500 m</strong> → actividad a nivel <strong>pad-cluster</strong>, no por-pad; en el core denso de Añelo
-  se funden pads vecinos.</li>
+  se funden pads vecinos. <em>(Sentinel-2 a 10 m lo confirma por-pad — ver arriba.)</em></li>
 <li><strong>Sin separación física flaring/luces</strong> (no usamos VNF por temperatura): el split Flaring/Producción es
   un <strong>proxy por brillo</strong>.</li>
 <li><strong>Muestreo mensual</strong>: fracturas cortas (días) pueden perderse; la perforación (semanas) es más
@@ -688,7 +743,9 @@ propio conteo del Cap IV (los labels son el registro oficial).</p>
 <pre><code class="language-bash">M=&quot;mamba run -n insar python&quot;
 $M data/fetch_wells.py &amp;&amp; $M data/fetch_blackmarble.py &amp;&amp; $M data/fetch_vnf.py
 $M detect.py &amp;&amp; $M label.py &amp;&amp; $M validate.py
-$M analysis/lag.py &amp;&amp; $M features.py &amp;&amp; $M nowcast.py   # nowcasting
+$M analysis/lag.py &amp;&amp; $M features.py &amp;&amp; $M nowcast.py   # nowcasting (scorea toda la cola laggeada)
+$M analysis/timeline.py   # chart oficial + nowcast supliendo el lag
+$M data/fetch_s2.py       # Sentinel-2 10m: change-detection PRE→POST del despeje de pad
 $M viz.py
 </code></pre>
 <p>Código: <a href="https://github.com/mpodeley/vaca-muerta-nightlights">github.com/mpodeley/vaca-muerta-nightlights</a>.</p>

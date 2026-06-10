@@ -15,7 +15,12 @@ panel izquierdo rankea los **operadores con más perforación/fractura/terminaci
 
 ## La actividad en el tiempo
 
-![Actividad de perforación / fractura / terminación, 2019–2026](assets/timeline.png){ loading=lazy }
+El Cap IV se publica con **~13,5 meses de lag**, así que los últimos meses están incompletos y la
+actividad *parece* desplomarse. El **relleno sólido** es el registro oficial; el **rayado** es el
+**nowcast** estimando lo que el satélite ya ve pero el Cap IV todavía no reportó (zona gris). No es que
+se dejó de perforar: es dato que falta publicar.
+
+![Actividad por fase: Cap IV oficial (relleno) + nowcast supliendo el lag (rayado), 2019–2026](assets/timeline.png){ loading=lazy }
 
 ## ¿Funciona? Validación contra el ground-truth
 

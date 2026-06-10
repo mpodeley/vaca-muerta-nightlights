@@ -100,7 +100,8 @@ propio conteo del Cap IV (los labels son el registro oficial).
 M="mamba run -n insar python"
 $M data/fetch_wells.py && $M data/fetch_blackmarble.py && $M data/fetch_vnf.py
 $M detect.py && $M label.py && $M validate.py
-$M analysis/lag.py && $M features.py && $M nowcast.py   # nowcasting
+$M analysis/lag.py && $M features.py && $M nowcast.py   # nowcasting (scorea toda la cola laggeada)
+$M analysis/timeline.py   # chart oficial + nowcast supliendo el lag
 $M viz.py
 ```
 

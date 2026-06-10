@@ -107,9 +107,7 @@ def main() -> None:
  .rk{{position:absolute;top:12px;left:12px;z-index:1000;background:rgba(255,255,255,.96);
   padding:8px 12px;border-radius:6px;font:12px sans-serif;min-width:235px}}
  .sw{{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px}}
- .bar{{height:9px;background:#ff7f0e;display:inline-block;vertical-align:middle}}
- .barp{{height:9px;background:repeating-linear-gradient(90deg,#ff7f0e,#ff7f0e 2px,#fff 2px,#fff 4px);
-  display:inline-block;vertical-align:middle;border:1px solid #ff7f0e}}
+ .seg{{height:10px;display:inline-block;vertical-align:middle}}
  #play{{cursor:pointer;border:none;background:#334;color:#fff;border-radius:5px;padding:2px 9px}}
  table{{border-collapse:collapse}} td{{padding:1px 4px;font-size:11px}}
  .hd{{font-size:11px;color:#666;margin-bottom:3px}}
@@ -124,7 +122,7 @@ def main() -> None:
  <div style="font-size:10px;color:#666">relleno blanco-borde = confirmado por luz</div>
 </div>
 <div class="rk"><b>Actividad por operador — <span id="ym2"></span></b>
- <div style="font-size:10px;color:#666">barra llena = Cap IV · rayada = predicho</div>
+ <div style="font-size:10px;color:#666">color = tipo (🟠perf 🔵term 🔴frac) · lleno = Cap IV · rayado = predicho</div>
  <table id="rank"></table></div>
 <div class="panel">
  <div><button id="play">▶</button> &nbsp;<b>Vaca Muerta · actividad</b> · <span id="ym"></span></div>
@@ -170,21 +168,29 @@ function show(i){{
     L.circleMarker([p.la,p.lo],{{radius:6,color:col,weight:t2?2:2.6,fill:false,
       opacity:t2?0.8:0.97,dashArray:t2?'2 4':'4 3'}})
      .bindPopup(p.info+'<br>'+(NM[p.a]||p.a)).addTo(g);
-    if(tr){{ ops[p.op]=ops[p.op]||{{o:0,p:0}}; ops[p.op].p++; }}
+    if(tr){{ ops[p.op]=ops[p.op]||{{}}; ops[p.op][p.a]=ops[p.op][p.a]||{{o:0,p:0}}; ops[p.op][p.a].p++; }}
   }} else {{
     L.circleMarker([p.la,p.lo],{{radius:radius(p.a),color:p.c?'#fff':col,weight:p.c?1.3:0.6,
       fillColor:col,fillOpacity:tr?0.95:0.6}})
      .bindPopup(p.info+'<br>'+(NM[p.a]||p.a)+(p.c?' · luz noct.':'')).addTo(g);
-    if(tr){{ ops[p.op]=ops[p.op]||{{o:0,p:0}}; ops[p.op].o++; }}
+    if(tr){{ ops[p.op]=ops[p.op]||{{}}; ops[p.op][p.a]=ops[p.op][p.a]||{{o:0,p:0}}; ops[p.op][p.a].o++; }}
   }}
  }});
  ORD.forEach(k=>{{document.getElementById('ct_'+k).textContent=(offT[k]||0)+(predT[k]?(' +'+predT[k]):'');}});
  const cell=(k,emo)=>emo+' '+(NM[k])+': <b>'+(offT[k]||0)+'</b>'+(predT[k]?' <span style="color:#a0a">+'+predT[k]+'</span>':'');
  cnt.innerHTML=cell('PERF','🛠')+' &nbsp; '+cell('FRAC','💥')+' &nbsp; '+cell('TERM','✔')+
    ' &nbsp; 🔥 '+(offT.FLAR||0)+' &nbsp; ● '+(offT.PROD||0);
- const top=Object.entries(ops).sort((a,b)=>(b[1].o+b[1].p)-(a[1].o+a[1].p)).slice(0,8);
- const mx=top.length?Math.max(...top.map(x=>x[1].o+x[1].p)):1;
- rank.innerHTML=top.map(([o,v])=>`<tr><td>${{o.slice(0,20)}}</td><td><span class="bar" style="width:${{Math.round(54*v.o/mx)}}px"></span><span class="barp" style="width:${{Math.round(54*v.p/mx)}}px"></span> ${{v.o}}${{v.p?'+'+v.p:''}}</td></tr>`).join('')||'<tr><td>—</td></tr>';
+ const TT=['PERF','TERM','FRAC'], TL={{PERF:'P',TERM:'T',FRAC:'F'}};
+ const tot=v=>TT.reduce((s,k)=>s+((v[k]||{{}}).o||0)+((v[k]||{{}}).p||0),0);
+ const top=Object.entries(ops).sort((a,b)=>tot(b[1])-tot(a[1])).slice(0,8);
+ const mx=top.length?Math.max(...top.map(x=>tot(x[1]))):1;
+ const seg=(w,col,hatch)=>w<1?'':`<span class="seg" style="width:${{Math.max(2,Math.round(58*w/mx))}}px;background:${{hatch?`repeating-linear-gradient(90deg,${{col}},${{col}} 2px,#fff 2px,#fff 4px)`:col}}"></span>`;
+ rank.innerHTML=top.map(([o,v])=>{{
+   let bars='', txt=[];
+   TT.forEach(k=>{{const d=v[k]||{{o:0,p:0}}; bars+=seg(d.o,COL[k],false)+seg(d.p,COL[k],true);
+     if(d.o||d.p) txt.push(TL[k]+(d.o||0)+(d.p?'+'+d.p:''));}});
+   return `<tr><td>${{o.slice(0,18)}}</td><td>${{bars}} <span style="color:#555">${{txt.join(' ')}}</span></td></tr>`;
+ }}).join('')||'<tr><td>—</td></tr>';
 }}
 document.querySelectorAll('.lg').forEach(el=>{{
   const cat=el.dataset.cat; if(!vis[cat]) el.classList.add('off');

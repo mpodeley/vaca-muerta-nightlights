@@ -34,3 +34,8 @@ site/
 # salidas del nowcaster (regenerables)
 nowcast.csv
 nowcast_report.txt
+
+# salidas equipos (regenerables)
+rigs_monthly.csv
+equipment_routes.json
+equipment_report.txt

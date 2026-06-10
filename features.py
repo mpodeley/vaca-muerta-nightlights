@@ -92,6 +92,7 @@ def main():
             persist = int((base > THR).sum())
             dnb = float(series[t]); prev = float(series[t-1]) if t > 0 else 0.0
             yperf = in_win(ym, w["perf_ini"], w["perf_fin"])
+            yterm = in_win(ym, w["term_ini"], w["term_fin"])
             yfrac = max((in_win(ym, a, b) for a, b in fr), default=0)
             rows.append({
                 "idpozo": w["idpozo"], "ym": ym, "lon": lon, "lat": lat,
@@ -100,13 +101,14 @@ def main():
                 "dnb_anom": round(dnb - base_med, 2), "dnb_prev": round(prev, 2),
                 "dnb_delta": round(dnb - prev, 2), "neigh": round(float(neigh[t]), 2),
                 "persist12": persist, "vnf": 1 if int(ym[:4]) in vy else 0,
-                "mes": int(ym[5:7]), "y_perf": yperf, "y_frac": yfrac})
+                "mes": int(ym[5:7]), "y_perf": yperf, "y_frac": yfrac, "y_term": yterm})
     df = pd.DataFrame(rows)
     out = C.RAW / "features.csv.gz"
     df.to_csv(out, index=False, compression="gzip")
     print(f"features: {len(df)} filas (pozos {df.idpozo.nunique()}, meses {df.ym.nunique()})")
     print(f"  positivos perf: {df.y_perf.sum()} ({100*df.y_perf.mean():.1f}%)  "
-          f"frac: {df.y_frac.sum()} ({100*df.y_frac.mean():.1f}%)")
+          f"frac: {df.y_frac.sum()} ({100*df.y_frac.mean():.1f}%)  "
+          f"term: {df.y_term.sum()} ({100*df.y_term.mean():.1f}%)")
     print(f"persistido: {out}")
 
 

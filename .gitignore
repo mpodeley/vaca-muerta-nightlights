@@ -39,3 +39,6 @@ nowcast_report.txt
 rigs_monthly.csv
 equipment_routes.json
 equipment_report.txt
+
+# entregables one-off (PPT etc.)
+exports/

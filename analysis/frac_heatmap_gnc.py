@@ -29,6 +29,7 @@ WEIGHT = "pozos"                         # "pozos" (densidad) | "etapas" (cantid
 OUT = C.ROOT / "exports" / f"frac_heatmap_gnc_{YEAR}.png"
 SRC_FRAC = C.SRC_DATA / "fractura_adjiv.csv"
 PLUS_EDGE = "#00e5ff"                     # color de remarcado Pluspetrol
+STATION_COLOR = "#ffe000"                 # amarillo para destacar la estación GNC
 
 
 OP_ABBR = {"PLUSPETROL": "Pluspetrol", "YPF": "YPF", "VISTA": "Vista", "SHELL": "Shell",
@@ -203,13 +204,17 @@ def main():
                         fontsize=8.5, fontweight="bold", ha="center", va="center", zorder=6,
                         linespacing=1.0, path_effects=stroke(2.5))
 
-    # estación GNC
-    ax.scatter([stx], [sty], marker="*", s=560, c="white", edgecolors="black", linewidths=1.4, zorder=8)
+    # estación GNC — destacada: anillos de halo + estrella amarilla grande
+    ax.scatter([stx], [sty], marker="o", s=3400, facecolors="none", edgecolors=STATION_COLOR,
+               linewidths=2.4, alpha=0.9, zorder=7)
+    ax.scatter([stx], [sty], marker="o", s=1700, facecolors="none", edgecolors=STATION_COLOR,
+               linewidths=1.6, alpha=0.55, zorder=7)
+    ax.scatter([stx], [sty], marker="*", s=950, c=STATION_COLOR, edgecolors="black", linewidths=1.8, zorder=9)
     ax.annotate("Estación GNC a granel\n(Ruta 7 · TGS Tratayén)", xy=(stx, sty),
-                xytext=(stx - ext_w * 0.02, sty + ext_h * 0.055),
-                color="white", fontsize=12, fontweight="bold", zorder=8, ha="center", va="bottom",
-                path_effects=[plt.matplotlib.patheffects.withStroke(linewidth=3, foreground="black")],
-                arrowprops=dict(arrowstyle="-", color="white", lw=1.2))
+                xytext=(stx - ext_w * 0.02, sty + ext_h * 0.06),
+                color=STATION_COLOR, fontsize=13, fontweight="bold", zorder=9, ha="center", va="bottom",
+                path_effects=[plt.matplotlib.patheffects.withStroke(linewidth=3.2, foreground="black")],
+                arrowprops=dict(arrowstyle="-", color=STATION_COLOR, lw=1.4))
 
     # título + créditos
     fig.suptitle(f"Actividad de fractura {YEAR} en Vaca Muerta y la estación de GNC propuesta",
@@ -221,8 +226,8 @@ def main():
             path_effects=[plt.matplotlib.patheffects.withStroke(linewidth=2, foreground="black")])
 
     # leyenda chica: estación + bloques Pluspetrol (la de operadoras ya no hace falta: van rotuladas)
-    leg_extra = [Line2D([0], [0], marker="*", color="none", markerfacecolor="white", markeredgecolor="black",
-                        markersize=16, label="Estación GNC"),
+    leg_extra = [Line2D([0], [0], marker="*", color="none", markerfacecolor=STATION_COLOR,
+                        markeredgecolor="black", markersize=18, label="Estación GNC"),
                  plt.matplotlib.patches.Patch(facecolor="none", edgecolor=PLUS_EDGE, linewidth=2.5,
                                               label="Bloques Pluspetrol")]
     ax.legend(handles=leg_extra, loc="lower right", fontsize=10, framealpha=0.6, facecolor="black",

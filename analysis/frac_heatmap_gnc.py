@@ -242,7 +242,13 @@ def main():
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, dpi=200, bbox_inches="tight", pad_inches=0.05, facecolor="black")
+    # versión liviana para PPT: JPEG a baja resolución (la foto satelital comprime muy bien en JPEG)
+    OUT_LIGHT = OUT.with_name(OUT.stem + "_light.jpg")
+    fig.savefig(OUT_LIGHT, dpi=85, bbox_inches="tight", pad_inches=0.05, facecolor="black",
+                pil_kwargs={"quality": 78, "optimize": True})
+    kb = OUT_LIGHT.stat().st_size / 1024
     print(f"escrito {OUT}  ({nx}x{ny} grid) | operadoras coloreadas: {len(top_ops)}")
+    print(f"escrito {OUT_LIGHT}  ({kb:.0f} KB) — versión liviana para PPT")
     print(f"extent lon/lat ≈ {T.transform(xmin, ymin, direction='INVERSE')[:2]} .. "
           f"{T.transform(xmax, ymax, direction='INVERSE')[:2]}")
 
